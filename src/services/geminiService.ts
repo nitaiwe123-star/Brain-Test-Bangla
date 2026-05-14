@@ -1,7 +1,18 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { Puzzle, INITIAL_PUZZLES } from "../data/puzzles";
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
+let aiInstance: GoogleGenAI | null = null;
+
+function getAI() {
+  if (aiInstance) return aiInstance;
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    console.warn("GEMINI_API_KEY is not defined. AI features will not work.");
+    return null;
+  }
+  aiInstance = new GoogleGenAI({ apiKey });
+  return aiInstance;
+}
 
 const puzzleSchema = {
   type: Type.OBJECT,
@@ -28,6 +39,13 @@ export async function generatePuzzle(level: number): Promise<Puzzle> {
   // Use static puzzles for the first few levels to ensure a solid start
   if (level <= INITIAL_PUZZLES.length) {
     return { ...INITIAL_PUZZLES[level - 1], id: level };
+  }
+
+  const ai = getAI();
+  if (!ai) {
+    console.log("No AI configured, falling back to static puzzles.");
+    const fallback = INITIAL_PUZZLES[level % INITIAL_PUZZLES.length];
+    return { ...fallback, id: level };
   }
 
   try {

@@ -6,12 +6,14 @@ import confetti from 'canvas-confetti';
 export const useGameProgress = () => {
   const [coins, setCoins] = useState<number>(() => {
     const saved = localStorage.getItem('btb_coins');
-    return saved ? parseInt(saved) : 500;
+    const val = saved ? parseInt(saved) : 500;
+    return isNaN(val) ? 500 : val;
   });
 
   const [currentLevel, setCurrentLevel] = useState<number>(() => {
     const saved = localStorage.getItem('btb_level');
-    return saved ? parseInt(saved) : 1;
+    const val = saved ? parseInt(saved) : 1;
+    return isNaN(val) ? 1 : val;
   });
 
   const [unlockedAchievements, setUnlockedAchievements] = useState<string[]>(() => {
